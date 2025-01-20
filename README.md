@@ -19,7 +19,7 @@ Follow these steps to set up YaraBot on your local system:
 1. **Clone the repository**:
 
    ```bash
-   git clone https://github.com/yourusername/YaraBot.git
+   git clone https://github.com/yarabot-ir/yara-agent.git
    ```
 
 2. **Navigate to the project directory**:
