@@ -1,0 +1,12 @@
+declare module 'react-multi-date-picker';
+declare module "react-date-object/calendars/persian" ;
+declare module "react-date-object/locales/persian_fa" ;
+declare module  "@headlessui/react";
+declare module "./components/DarkModeToggle.jsx" ;
+declare module 'moment-jalaali' ;
+declare module 'query-string' ;
+declare module 'js-cookie' ;
+declare module '../../data/data' ;
+declare module "@mui/icons-material" ;
+declare module "primereact/typography" ;
+// declare module '@/datafeed' ;

@@ -1,0 +1,9 @@
+version: '3'
+
+services:
+  front:
+    build: .
+    restart: "unless-stopped"
+    container_name: yarabot_frontend
+    ports:
+      - "7200:3000"
