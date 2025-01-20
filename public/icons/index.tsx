@@ -1,0 +1,37 @@
+export { default as LogoChatIcon } from './LogoChat.svg';
+export { default as AcceptIcon } from './accept.svg';
+export { default as BotIcon } from './bot.svg';
+export { default as CloseIcon } from './close.svg';
+export { default as CopyIcon } from './copy.svg';
+export { default as LoadingIcon } from './loading.svg';
+export { default as LogoIcon } from './logo.svg';
+export { default as RefreshIcon } from './refresh.svg';
+export { default as SendIcon } from './send.svg';
+export { default as StarIcon } from './star.svg';
+export { default as SunIcon } from './sun.svg';
+export { default as AnimIcon } from './svg-anim.svg';
+export { default as TickIcon } from './tick.svg';
+export { default as VoiceIcon } from './voice.svg';
+export { default as TrashIcon } from './trash.svg';
+export { default as TrashDarkIcon } from './trash-dark.svg';
+export { default as PlayIcon } from './play.svg';
+export { default as PauseIcon } from './pause.svg';
+export { default as FeatureLogoIcon } from './feature-logo.webp';
+
+export { default as YaraFeature1 } from './White/WhiteYaraFeature(1).svg';
+export { default as YaraFeature2 } from './White/WhiteYaraFeature(2).svg';
+export { default as YaraFeature3 } from './White/WhiteYaraFeature(3).svg';
+export { default as YaraFeature4 } from './White/WhiteYaraFeature(4).svg';
+export { default as YaraFeature5 } from './White/WhiteYaraFeature(5).svg';
+export { default as YaraFeature6 } from './White/WhiteYaraFeature(6).svg';
+export { default as YaraFeature7 } from './White/WhiteYaraFeature(7).svg';
+export { default as YaraFeature8 } from './White/WhiteYaraFeature(8).svg';
+
+export { default as WhyYara1 } from './White/WhiteWhyYara(1).svg';
+export { default as WhyYara2 } from './White/WhiteWhyYara(2).svg';
+export { default as WhyYara3 } from './White/WhiteWhyYara(3).svg';
+export { default as WhyYara4 } from './White/WhiteWhyYara(4).svg';
+export { default as WhyYara5 } from './White/WhiteWhyYara(5).svg';
+export { default as WhyYara6 } from './White/WhiteWhyYara(6).svg';
+export { default as WhyYara7 } from './White/WhiteWhyYara(7).svg';
+export { default as WhyYara8 } from './White/WhiteWhyYara(8).svg';

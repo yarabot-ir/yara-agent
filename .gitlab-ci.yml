@@ -1,0 +1,28 @@
+stages:
+  - "dev"
+  - "deploy"
+
+
+Dev:
+  stage: dev
+  tags:
+    - "devops"
+  before_script:
+    - chmod 400 $SSH_KEY
+  script:
+    - ssh -o StrictHostKeyChecking=no -i $SSH_KEY $HOST_SSH "cd $DEV_PWD_PROJECT; git config --global --add safe.directory $DEV_PWD_PROJECT; git stash; git pull; cat $ENV_DEV > .env; cat $COMPOSE_TEST > docker-compose.yml; docker compose up --build -d"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+
+
+
+Deploy:
+  stage: deploy
+  tags:
+    - "devops"
+  before_script:
+    - chmod 400 $SSH_KEY
+  script:
+    - ssh -o StrictHostKeyChecking=no -i $SSH_KEY $HOST_SSH "cd $PWD_PROJECT; git config --global --add safe.directory $PWD_PROJECT; git stash; git pull; cat $ENV > .env; cat $COMPOSE_DEP > docker-compose.yml; docker compose up --build -d"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"

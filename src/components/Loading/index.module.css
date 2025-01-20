@@ -1,0 +1,18 @@
+@keyframes ripple {
+    0% {
+      transform: scale(2.5);
+      opacity: 0;
+    }
+    25% {
+      opacity: 1;
+    }
+    100% {
+      transform: scale(6);
+      opacity: 0;
+    }
+  }
+  
+  .ripple div {
+    animation: ripple 1.5s infinite linear;
+  }
+  
