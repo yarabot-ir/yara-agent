@@ -80,7 +80,7 @@ Follow these steps to set up YaraBot on your local system:
 
 ## 📜 License
 
-This project and all associated rights are owned by **Yarabot** and the **intelligent agents of Danaye Darnika**.
+This project and all associated rights are owned by **Yarabot** and the **AHD | Wise Intelligent Agents**.
 
 ---
 
