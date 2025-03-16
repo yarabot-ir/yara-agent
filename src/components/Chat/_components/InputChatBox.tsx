@@ -10,6 +10,7 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { useRef, useState } from 'react';
 import { AudioVisualizer } from 'react-audio-visualize';
 import { useToast } from '../../../context/ToastProvider';
+import { Dropdown } from 'primereact/dropdown';
 
 function InputChatBox({
   className,
@@ -18,6 +19,10 @@ function InputChatBox({
   audioBlob,
   SendVoice,
   isPending,
+  selectedModel,
+  setSelectedModel,
+  models,
+  chatList,
 }: any) {
   const [text, setText] = useState<string>('');
   const [isRecording, setIsRecording] = useState<boolean>(false);
@@ -93,6 +98,35 @@ function InputChatBox({
         className
       )}
     >
+      <Dropdown
+        disabled={chatList?.length >= 1 && true}
+        options={models}
+        value={selectedModel}
+        placeholder=""
+        onChange={(e) => setSelectedModel(e.value)}
+        valueTemplate={(option) => option && `در حال استفاده از ${option.name}`}
+        optionLabel="name"
+        pt={{
+          input: {
+            className:
+              '!text-sm -mt-2.5 !text-[#257966] !font-medium !font-yekanBakh',
+          },
+          trigger: {
+            className: '!text-[#257966] !font-yekanBakh',
+          },
+          item: {
+            className:
+              '!text-[#257966] !text-sm !font-medium !font-yekanBakh hover:!bg-[#EFFFF9] h-10',
+          },
+          select: {
+            className: '!bg-[#EFFAF8] hover:!bg-[#EFFAF8] ',
+          },
+          list: {
+            className: '!py-0 ',
+          },
+        }}
+        className="!absolute !bg-[#EFFAF8] !outline-none !shadow-none !border-0 left-7 -top-[33px] !h-8 !w-60 rounded-b-none"
+      />
       {audioBlob ? (
         <div className="flex justify-between items-center gap-3 px-2">
           <div className="flex gap-x-2 items-center">

@@ -10,6 +10,10 @@ function ChatDetail({
   SendVoice,
   fileUploadRef,
   isPending,
+  selectedModel,
+  setSelectedModel,
+  models,
+  chatList,
 }: any) {
   return (
     <div className="flex  gap-y-10 w-full !max-h-[80vh]  sm:!min-h-[80vh]  lg:!min-h-screen justify-center overflow-y-auto items-center flex-col px-4  ">
@@ -28,6 +32,10 @@ function ChatDetail({
           SendVoice={SendVoice}
           fileUploadRef={fileUploadRef}
           isPending={isPending}
+          selectedModel={selectedModel}
+          setSelectedModel={setSelectedModel}
+          models={models}
+          chatList={chatList}
         />
         <div className="w-full flex flex-col items-start  gap-y-5   ">
           <div className="f-jc-ie   w-full  flex-col md:flex-row-reverse md:justify-between gap-x-4 gap-y-3">

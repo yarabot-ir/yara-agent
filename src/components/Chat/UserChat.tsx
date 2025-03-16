@@ -1,11 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 
 import { defaultQues } from '../../../data/data.ts';
-import InputChatBox from './_components/InputChatBox.tsx';
-import ChatDetail from './_components/ChatDetail.tsx';
-import Message from './Massage.tsx';
-import Thinking from './_components/Thinking.tsx';
 import { useToast } from '../../context/ToastProvider.tsx';
+import { AgentName } from '../../services/ChatApi.ts';
+import ChatDetail from './_components/ChatDetail.tsx';
+import InputChatBox from './_components/InputChatBox.tsx';
+import Thinking from './_components/Thinking.tsx';
+import Message from './Massage.tsx';
 
 // interface UserChatProps {
 //   username: string;
@@ -19,6 +20,11 @@ const UserChat: React.FC = () => {
   const fileUploadRef = useRef<File>(null);
   const [isPending, setIsPending] = useState<boolean>(false);
   const [sessionId, setSessionId] = useState<any>(null);
+  const [models, setModels] = useState<any>();
+  const [selectedModel, setSelectedModel] = useState<any>({
+    agent_id: null,
+    name: 'یارابات',
+  });
 
   const { showToast } = useToast();
   const API = import.meta.env.VITE_BASE_URL;
@@ -32,6 +38,25 @@ const UserChat: React.FC = () => {
       abortControllerRef.current.abort();
     }
   };
+
+  useEffect(() => {
+    AgentName()
+      .then((e) => {
+        if (e?.detail) {
+          showToast('error', 'خطا', 'همیار مورد نظر یافت نشد');
+          setModels([{ agent_id: null, name: 'یارابات' }]);
+        } else {
+          setModels([
+            { agent_id: null, name: 'یارابات' },
+            { agent_id: AgentId, name: e?.name },
+          ]);
+        }
+      })
+      .catch(() => {
+        showToast('error', 'خطا', 'همیار مورد نظر یافت نشد');
+        setModels([{ agent_id: null, name: 'یارابات' }]);
+      });
+  }, [AgentId, AgentToken]);
 
   useEffect(() => {
     handleCancelAndNavigate();
@@ -72,16 +97,18 @@ const UserChat: React.FC = () => {
     }
 
     try {
-      const response = await fetch(`${API}agent/bot/${AgentId}/chat`, {
-        method: 'POST',
-        headers: {
-          authorization: `${AgentToken}`,
-        },
-        body: data ? data : form,
-      });
-
-      console.log(response);
-
+      const response = await fetch(
+        `${API}agent/bot/${AgentId}/${
+          selectedModel?.agent_id ? 'chat' : 'yarachat'
+        }`,
+        {
+          method: 'POST',
+          headers: {
+            authorization: `${AgentToken}`,
+          },
+          body: data ? data : form,
+        }
+      );
       if (response?.status === 404) {
         showToast('error', 'خطا', 'همیار مورد نظر یافت نشد!');
         setChatList((prevChatList: any) => {
@@ -124,6 +151,7 @@ const UserChat: React.FC = () => {
       let buffer = '';
       let isFirstChunk = true;
       let text = '';
+      let Id: null = null;
 
       while (true) {
         const { done, value } = await reader.read();
@@ -146,6 +174,27 @@ const UserChat: React.FC = () => {
 
             if (parsed?.session_id) {
               setSessionId(parsed?.session_id);
+            }
+
+            if (parsed?.message_id) {
+              Id = parsed?.message_id;
+              setChatList((prevChatList) => {
+                const updatedChat = [...prevChatList];
+                const lastIndex = updatedChat.length - 1;
+
+                const newText = updatedChat[lastIndex].content;
+
+                updatedChat[lastIndex] = {
+                  ...updatedChat[lastIndex],
+                  role: 'assistant',
+                  content: newText,
+                  id: Id,
+                  like: null,
+                };
+
+                return updatedChat;
+              });
+              setIsPending(false);
             }
 
             if (parsed.data) {
@@ -202,13 +251,18 @@ const UserChat: React.FC = () => {
     }
 
     try {
-      const response = await fetch(`${API}agent/bot/${AgentId}/chat`, {
-        method: 'POST',
-        headers: {
-          authorization: `${AgentToken}`,
-        },
-        body: data ? data : form,
-      });
+      const response = await fetch(
+        `${API}agent/bot/${AgentId}/${
+          selectedModel?.agent_id ? 'chat' : 'yarachat'
+        }`,
+        {
+          method: 'POST',
+          headers: {
+            authorization: `${AgentToken}`,
+          },
+          body: data ? data : form,
+        }
+      );
 
       if (response?.status === 404) {
         showToast('error', 'خطا', 'همیار مورد نظر یافت نشد!');
@@ -251,6 +305,7 @@ const UserChat: React.FC = () => {
       const decoder = new TextDecoder('utf-8');
       let buffer = '';
       let text = '';
+      let Id: null = null;
 
       while (true) {
         const { done, value } = await reader.read();
@@ -266,6 +321,27 @@ const UserChat: React.FC = () => {
 
           try {
             const parsed = JSON.parse(jsonStr);
+            if (parsed?.message_id) {
+              Id = parsed?.message_id;
+              setChatList((prevChatList) => {
+                const updatedChat = [...prevChatList];
+                const lastIndex = updatedChat.length - 1;
+
+                const newText = updatedChat[lastIndex].content;
+
+                updatedChat[lastIndex] = {
+                  ...updatedChat[lastIndex],
+                  role: 'assistant',
+                  content: newText,
+                  id: Id,
+                  like: null,
+                };
+
+                return updatedChat;
+              });
+              setIsPending(false);
+            }
+
             if (parsed.data) {
               setChatList((prevChatList) => {
                 const updatedChat = [...prevChatList];
@@ -316,6 +392,7 @@ const UserChat: React.FC = () => {
           file: [],
           role: 'assistant',
           timestamp_ms: Date.now(),
+          like: null,
         });
         return _newChat;
       });
@@ -353,6 +430,7 @@ const UserChat: React.FC = () => {
         file: [],
         role: 'assistant',
         timestamp_ms: Date.now(),
+        like: null,
       });
       return _newChat;
     });
@@ -382,6 +460,10 @@ const UserChat: React.FC = () => {
               SendVoice={SendVoice}
               fileUploadRef={fileUploadRef}
               isPending={isPending}
+              selectedModel={selectedModel}
+              setSelectedModel={setSelectedModel}
+              models={models}
+              chatList={chatList}
             />
             <InputChatBox
               className="lg:hidden !h-auto w-[95%] mb-2 !absolute !bottom-0"
@@ -391,11 +473,15 @@ const UserChat: React.FC = () => {
               SendVoice={SendVoice}
               fileUploadRef={fileUploadRef}
               isPending={isPending}
+              selectedModel={selectedModel}
+              setSelectedModel={setSelectedModel}
+              models={models}
+              chatList={chatList}
             />
           </>
         ) : (
           <>
-            <Message chat={chatList} />
+            <Message chat={chatList} sessionId={sessionId} />
             <InputChatBox
               className="lg:w-4/6 xl:!w-3/6 md:w-5/6 w-[95%] mb-2 !absolute !bottom-0 !h-auto"
               SendText={SendText}
@@ -404,6 +490,10 @@ const UserChat: React.FC = () => {
               SendVoice={SendVoice}
               fileUploadRef={fileUploadRef}
               isPending={isPending}
+              selectedModel={selectedModel}
+              setSelectedModel={setSelectedModel}
+              models={models}
+              chatList={chatList}
             />
           </>
         )}

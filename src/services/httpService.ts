@@ -1,13 +1,11 @@
 import axios from 'axios';
-import Cookies from 'js-cookie';
-
-const token = Cookies.get('token');
+const AgentToken = import.meta.env.VITE_BASE_AGENT_TOKEN;
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 const app = axios.create({
   baseURL: BASE_URL,
-  headers: { Authorization: `Bearer ${token}` },
+  headers: { Authorization: AgentToken },
   // withCredentials: true,
   // maxBodyLength: Infinity,
 });

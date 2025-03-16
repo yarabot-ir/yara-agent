@@ -1,120 +1,39 @@
-import Cookies from 'js-cookie';
+import http from './httpService';
+
 const API = import.meta.env.VITE_BASE_URL;
+const AgentId = import.meta.env.VITE_BASE_AGENT_ID;
+const AgentToken = import.meta.env.VITE_BASE_AGENT_TOKEN;
 
-export const GetChat = async (id: string | number) => {
+export const AgentName = async () => {
   try {
-    const token = Cookies.get('token');
-
-    const response = await fetch(`${API}chat/${id}/`, {
+    const response = await fetch(`${API}agent/bot/${AgentId}/preferences`, {
       method: 'GET',
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `${AgentToken}`,
+        'Accept-Language': 'fa',
       },
     });
-
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
 
     const data = await response.json();
     return data;
   } catch (e) {
-    // console.log(e);
     return e;
   }
 };
 
-export const newChatApi = async (text: string) => {
+export const ReactMessage = async (
+  session_id: any,
+  message_id: any,
+  react: any
+) => {
   try {
-    const token = Cookies.get('token');
-    const response = await fetch(`${API}/new_chat?text=${text}`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-
-    const data = await response.json();
+    const response = await http.post(
+      `agent/bot/${AgentId}/${session_id}/${message_id}?react=${react}`,
+      ''
+    );
+    const data = await response;
     return data;
   } catch (e) {
-    // return { status: 200, res: 'نمیدونم والا', chatId: 3, fake: true };
-    // console.log(e);
     return e;
   }
 };
-
-export const History = async () => {
-  try {
-    const token = Cookies.get('token');
-    const response = await fetch(`${API}/chats`, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (e) {
-    // return { status: 200, res: 'نمیدونم والا', chatId: 3, fake: true };
-    // console.log(e);
-    return e;
-  }
-};
-
-export const Chat = async (text: string, id: number) => {
-  try {
-    const token = Cookies.get('token');
-    const response = await fetch(`${API}/chat/${id}/?text=${text}`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (e) {
-    // return { status: 200, res: 'نمیدونم والا', chatId: 3, fake: true };
-    console.log(e);
-    return e;
-  }
-};
-
-// export const Asr = async (voice: any) => {
-//   try {
-//     const token = Cookies.get('token');
-//     const response = await fetch(`${API}/asr`, {
-//       method: 'POST',
-//       body: {
-//         file: voice,
-//       },
-//       headers: {
-//         accept: 'multipart/form-data',
-//         Authorization: `Bearer ${token}`,
-//       },
-//     });
-
-//     if (!response.ok) {
-//       throw new Error('Network response was not ok');
-//     }
-
-//     const data = await response.json();
-//     return data;
-//   } catch (e) {
-//     console.log(e);
-//     return e;
-//   }
-// };

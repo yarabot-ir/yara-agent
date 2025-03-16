@@ -1,13 +1,15 @@
-import { AudioVisualizer } from 'react-audio-visualize';
-import { useState } from 'react';
-import ReactMarkdown from 'react-markdown';
 import { Button } from 'primereact/button';
+import { useState } from 'react';
+import { AudioVisualizer } from 'react-audio-visualize';
+import ReactMarkdown from 'react-markdown';
 import { CopyIcon, PauseIcon, PlayIcon, TickIcon } from '../../../public/icons';
+import { ReactMessage } from '../../services/ChatApi';
 
-function Massage({ chat }: any) {
+function Massage({ chat, sessionId }: any) {
   const [playingAudioId, setPlayingAudioId] = useState(null);
   const [audio, setAudio] = useState<any>();
   const [clickCopy, setClickCopy] = useState(new Map());
+  const [like, setLike] = useState(new Map());
 
   const lastYaraBotIndex = chat
     ?.map((e: any, idx: number) => (e.role !== 'user' ? idx : -1))
@@ -123,7 +125,65 @@ function Massage({ chat }: any) {
                     )}
                   </span>
                 </div>
-                <div className="absolute -bottom-12">
+                <div className="  py-4  absolute -bottom-16 flex gap-x-1">
+                  {item?.like === null && like.get(item?.id) == undefined ? (
+                    <>
+                      <Button
+                        onClick={() => {
+                          console.log(sessionId, item?.id, false);
+
+                          ReactMessage(sessionId, item?.id, false).then(
+                            (e: any) => {
+                              if (e?.status) {
+                                const newLike = new Map(like);
+                                newLike.set(item?.id, 'Dislike');
+                                setLike(newLike);
+                              }
+                            }
+                          );
+                        }}
+                        className="bg-white hover:!bg-white hover:dark:!bg-white/25 rounded-lg dark:!bg-secondary-150 !p-0 !h-8 !w-8 flex justify-center shadow-none border-0"
+                      >
+                        {(item && item?.like === false) ||
+                        like.get(item?.id) === 'Dislike' ? (
+                          <i className="pi pi-thumbs-down-fill text-[#77777e]"></i>
+                        ) : (
+                          <i className="pi pi-thumbs-down text-[#77777e]"></i>
+                        )}
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          console.log(sessionId, item?.id, true);
+
+                          ReactMessage(sessionId, item?.id, true).then(
+                            (e: any) => {
+                              if (e?.status) {
+                                const newLike = new Map(like);
+                                newLike.set(item?.id, 'like');
+                                setLike(newLike);
+                              }
+                            }
+                          );
+                        }}
+                        className="bg-white hover:!bg-white hover:dark:!bg-white/25 rounded-lg dark:!bg-secondary-150 !p-0 !h-8 !w-8 flex justify-center shadow-none border-0"
+                      >
+                        {(item && item?.like === false) ||
+                        like.get(item?.id) === 'like' ? (
+                          <i className="pi pi-thumbs-up-fill text-[#77777e]"></i>
+                        ) : (
+                          <i className="pi pi-thumbs-up text-[#77777e]"></i>
+                        )}
+                      </Button>
+                    </>
+                  ) : item?.like || like.get(item?.id) === 'like' ? (
+                    <Button className="bg-white hover:!bg-white hover:dark:!bg-white/25 rounded-lg dark:!bg-secondary-150 !p-0 !h-8 !w-8 flex justify-center shadow-none border-0">
+                      <i className="pi pi-thumbs-up-fill text-[#77777e]"></i>
+                    </Button>
+                  ) : (
+                    <Button className="bg-white hover:!bg-white hover:dark:!bg-white/25 rounded-lg dark:!bg-secondary-150 !p-0 !h-8 !w-8 flex justify-center shadow-none border-0">
+                      <i className="pi pi-thumbs-down-fill text-[#77777e]"></i>
+                    </Button>
+                  )}
                   <Button
                     onClick={() => {
                       setClickCopy(new Map(clickCopy.set(item?.content, true)));
@@ -136,7 +196,7 @@ function Massage({ chat }: any) {
                         700
                       );
                     }}
-                    className="bg-white hover:!bg-white hover:dark:!bg-secondary-150 rounded-lg dark:!bg-secondary-150 p-0 h-11 !w-11 flex justify-center shadow-none border-0"
+                    className="bg-white hover:!bg-white hover:dark:!bg-white/25 rounded-lg dark:!bg-secondary-150 !p-0 !h-8 !w-8 flex justify-center shadow-none border-0"
                   >
                     {clickCopy.get(item.content) ? (
                       <img
@@ -170,10 +230,61 @@ function Massage({ chat }: any) {
                     )}
                   </span>
                 </div>
-                <div
-                  id="hover"
-                  className="absolute pt-2 -bottom-12 hover:flex w-1/2 justify-end"
-                >
+                <div className="  py-4  absolute -bottom-16 flex gap-x-1">
+                  {item?.like === null && like.get(item?.id) === undefined ? (
+                    <>
+                      <Button
+                        onClick={() => {
+                          ReactMessage(sessionId, item?.id, false).then(
+                            (e: any) => {
+                              if (e?.status) {
+                                const newLike = new Map(like);
+                                newLike.set(item?.id, 'Dislike');
+                                setLike(newLike);
+                              }
+                            }
+                          );
+                        }}
+                        className="bg-white hover:!bg-white hover:dark:!bg-white/25 rounded-lg dark:!bg-secondary-150 !p-0 !h-8 !w-8 flex justify-center shadow-none border-0"
+                      >
+                        {(item && item?.like === false) ||
+                        like.get(item?.id) === 'Dislike' ? (
+                          <i className="pi pi-thumbs-down-fill text-[#77777e]"></i>
+                        ) : (
+                          <i className="pi pi-thumbs-down text-[#77777e]"></i>
+                        )}
+                      </Button>
+                      <Button
+                        onClick={() => {
+                          ReactMessage(sessionId, item?.id, true).then(
+                            (e: any) => {
+                              if (e?.status) {
+                                const newLike = new Map(like);
+                                newLike.set(item?.id, 'like');
+                                setLike(newLike);
+                              }
+                            }
+                          );
+                        }}
+                        className="bg-white hover:!bg-white hover:dark:!bg-white/25 rounded-lg dark:!bg-secondary-150 !p-0 !h-8 !w-8 flex justify-center shadow-none border-0"
+                      >
+                        {(item && item?.like === false) ||
+                        like.get(item?.id) === 'like' ? (
+                          <i className="pi pi-thumbs-up-fill text-[#77777e]"></i>
+                        ) : (
+                          <i className="pi pi-thumbs-up text-[#77777e]"></i>
+                        )}
+                      </Button>
+                    </>
+                  ) : item?.like || like.get(item?.id) === 'like' ? (
+                    <Button className="bg-white hover:!bg-white hover:dark:!bg-white/25 rounded-lg dark:!bg-secondary-150 !p-0 !h-8 !w-8 flex justify-center shadow-none border-0">
+                      <i className="pi pi-thumbs-up-fill text-[#77777e]"></i>
+                    </Button>
+                  ) : (
+                    <Button className="bg-white hover:!bg-white hover:dark:!bg-white/25 rounded-lg dark:!bg-secondary-150 !p-0 !h-8 !w-8 flex justify-center shadow-none border-0">
+                      <i className="pi pi-thumbs-down-fill text-[#77777e]"></i>
+                    </Button>
+                  )}
                   <Button
                     onClick={() => {
                       setClickCopy(new Map(clickCopy.set(item?.content, true)));
@@ -186,7 +297,7 @@ function Massage({ chat }: any) {
                         700
                       );
                     }}
-                    className="bg-white hover:!bg-white hover:dark:!bg-secondary-150 rounded-lg dark:!bg-secondary-150 p-0 h-11 !w-11 flex justify-center shadow-none border-0"
+                    className="bg-white hover:!bg-white hover:dark:!bg-white/25 rounded-lg dark:!bg-secondary-150 !p-0 !h-8 !w-8 flex justify-center shadow-none border-0"
                   >
                     {clickCopy.get(item.content) ? (
                       <img
