@@ -5,7 +5,7 @@ import ReactMarkdown from 'react-markdown';
 import { CopyIcon, PauseIcon, PlayIcon, TickIcon } from '../../../public/icons';
 import { ReactMessage } from '../../services/ChatApi';
 
-function Massage({ chat, sessionId }: any) {
+function Massage({ chat, sessionId, divRef }: any) {
   const [playingAudioId, setPlayingAudioId] = useState(null);
   const [audio, setAudio] = useState<any>();
   const [clickCopy, setClickCopy] = useState(new Map());
@@ -46,7 +46,10 @@ function Massage({ chat, sessionId }: any) {
   };
 
   return (
-    <div className="overflow-y-auto  !pb-24 md:pb-0 lg:mt-6 xl:!mt-[-100px] !min-h-[85vh] flex w-full md:!w-5/6 lg:!w-4/6 xl:!w-3/6 flex-col gap-6 py-4 px-2 font-normal leading-8 [&::-webkit-scrollbar]:w-0">
+    <div
+      ref={divRef}
+      className="overflow-y-auto  !pb-36 md:pb-0 lg:mt-6 xl:!mt-[-100px] !min-h-[85vh] flex w-full md:!w-5/6 lg:!w-4/6 xl:!w-3/6 flex-col gap-6 py-4 px-2 font-normal leading-8 [&::-webkit-scrollbar]:w-0"
+    >
       {chat?.map((item: any, idx: any) => {
         const isLastItem = idx === lastYaraBotIndex;
 
@@ -126,12 +129,11 @@ function Massage({ chat, sessionId }: any) {
                   </span>
                 </div>
                 <div className="  py-4  absolute -bottom-16 flex gap-x-1">
-                  {item?.like === null && like.get(item?.id) == undefined ? (
+                  {(item?.like === undefined || item?.like === null) &&
+                  like.get(item?.id) == undefined ? (
                     <>
                       <Button
                         onClick={() => {
-                          console.log(sessionId, item?.id, false);
-
                           ReactMessage(sessionId, item?.id, false).then(
                             (e: any) => {
                               if (e?.status) {
@@ -153,8 +155,6 @@ function Massage({ chat, sessionId }: any) {
                       </Button>
                       <Button
                         onClick={() => {
-                          console.log(sessionId, item?.id, true);
-
                           ReactMessage(sessionId, item?.id, true).then(
                             (e: any) => {
                               if (e?.status) {

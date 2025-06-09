@@ -6,7 +6,33 @@ const AgentToken = import.meta.env.VITE_BASE_AGENT_TOKEN;
 
 export const AgentName = async () => {
   try {
-    const response = await fetch(`${API}agent/bot/${AgentId}/preferences`, {
+    const AgentData = localStorage.getItem('preferences');
+    const savedTime = parseInt(localStorage?.getItem('expire_date') || '');
+    const currentTime = Date.now();
+    const twentyFourHours = 24 * 60 * 60 * 1000;
+    if (!AgentData && currentTime - savedTime >= twentyFourHours) {
+      const response = await fetch(`${API}agent/bot/${AgentId}/preferences`, {
+        method: 'GET',
+        headers: {
+          Authorization: `${AgentToken}`,
+          'Accept-Language': 'fa',
+        },
+      });
+
+      const data = await response.json();
+      localStorage.setItem('preferences', data);
+      return data;
+    } else {
+      return AgentData;
+    }
+  } catch (e) {
+    return e;
+  }
+};
+
+export const AgentHistory = async (sessions: string) => {
+  try {
+    const response = await fetch(`${API}agent/bot/${AgentId}/${sessions}/`, {
       method: 'GET',
       headers: {
         Authorization: `${AgentToken}`,

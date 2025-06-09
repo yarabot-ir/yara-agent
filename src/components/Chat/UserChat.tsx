@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 
 import { defaultQues } from '../../../data/data.ts';
 import { useToast } from '../../context/ToastProvider.tsx';
-import { AgentName } from '../../services/ChatApi.ts';
+import { AgentHistory, AgentName } from '../../services/ChatApi.ts';
 import ChatDetail from './_components/ChatDetail.tsx';
 import InputChatBox from './_components/InputChatBox.tsx';
 import Thinking from './_components/Thinking.tsx';
@@ -21,23 +21,61 @@ const UserChat: React.FC = () => {
   const [isPending, setIsPending] = useState<boolean>(false);
   const [sessionId, setSessionId] = useState<any>(null);
   const [models, setModels] = useState<any>();
+  const [isUserScrolledUp, setIsUserScrolledUp] = useState<boolean>(false);
+  const divRef = useRef<any>();
   const [selectedModel, setSelectedModel] = useState<any>({
     agent_id: null,
     name: 'یارابات',
   });
+  let userScrolledUp = false;
 
   const { showToast } = useToast();
   const API = import.meta.env.VITE_BASE_URL;
   const AgentId = import.meta.env.VITE_BASE_AGENT_ID;
   const AgentToken = import.meta.env.VITE_BASE_AGENT_TOKEN;
+  const history = import.meta.env.VITE_BASE_HISTORY_SAVING;
 
   const abortControllerRef = useRef<AbortController | null>(null);
+
+  abortControllerRef.current = new AbortController();
+  const { signal } = abortControllerRef.current;
 
   const handleCancelAndNavigate = () => {
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }
   };
+
+  const GetHistory = async () => {
+    const data = await AgentHistory(localStorage?.getItem('history') || '');
+    setChatList(data);
+  };
+
+  useEffect(() => {
+    if (history == 'true') {
+      if (
+        localStorage.getItem('history') &&
+        localStorage.getItem('expire_date')
+      ) {
+        const savedTime = parseInt(localStorage?.getItem('expire_date') || '');
+        const currentTime = Date.now();
+        const twentyFourHours = 24 * 60 * 60 * 1000;
+        if (currentTime - savedTime >= twentyFourHours) {
+          localStorage.removeItem('history');
+          localStorage.removeItem('expire_date');
+        } else {
+          setSessionId(localStorage?.getItem('history'));
+          GetHistory();
+        }
+      }
+    } else if (history != 'false') {
+      showToast(
+        'error',
+        'خطا',
+        'مقدار VITE_BASE_HISTORY_SAVING صحیح نیست باید true یا false باشد'
+      );
+    }
+  }, [history]);
 
   useEffect(() => {
     AgentName()
@@ -47,9 +85,10 @@ const UserChat: React.FC = () => {
           setModels([{ agent_id: null, name: 'یارابات' }]);
         } else {
           setModels([
-            { agent_id: null, name: 'یارابات' },
             { agent_id: AgentId, name: e?.name },
+            { agent_id: null, name: 'یارابات' },
           ]);
+          setSelectedModel({ agent_id: AgentId, name: e?.name });
         }
       })
       .catch(() => {
@@ -57,6 +96,15 @@ const UserChat: React.FC = () => {
         setModels([{ agent_id: null, name: 'یارابات' }]);
       });
   }, [AgentId, AgentToken]);
+
+  // useEffect(() => {
+  //   if (saveHistory) {
+  //     console.log(chatList);
+  //     console.log(JSON.stringify(chatList));
+  //     localStorage.setItem('history', JSON.stringify(chatList));
+  //     localStorage.setItem('expire_date', Date().toString());
+  //   }
+  // }, [chatList]);
 
   useEffect(() => {
     handleCancelAndNavigate();
@@ -79,9 +127,32 @@ const UserChat: React.FC = () => {
     }
   }, [renderedItems, defaultQues]);
 
+  const scrollToBottom = () => {
+    const { current } = divRef;
+    if (!current) return;
+
+    const checkScrollDirection = (event: any) => {
+      if (event.deltaY < 0) {
+        userScrolledUp = true;
+        setIsUserScrolledUp(true);
+        current.removeEventListener('wheel', checkScrollDirection);
+      }
+    };
+
+    current.addEventListener('wheel', checkScrollDirection);
+
+    if (!userScrolledUp && current.lastElementChild) {
+      const offset = 500;
+      current.scrollTo({
+        top: current.lastElementChild.offsetTop + offset,
+        behavior: 'smooth',
+      });
+    }
+  };
+
   const fetchStreamedResponse = async ({ newText, fileType = 'text' }: any) => {
     setIsPending(true);
-
+    setIsUserScrolledUp(false);
     let data = null;
     const form = new FormData();
 
@@ -107,6 +178,7 @@ const UserChat: React.FC = () => {
             authorization: `${AgentToken}`,
           },
           body: data ? data : form,
+          signal,
         }
       );
       if (response?.status === 404) {
@@ -154,6 +226,9 @@ const UserChat: React.FC = () => {
       let Id: null = null;
 
       while (true) {
+        if (!isUserScrolledUp) {
+          scrollToBottom();
+        }
         const { done, value } = await reader.read();
         if (done) break;
 
@@ -162,6 +237,9 @@ const UserChat: React.FC = () => {
 
         let boundary = buffer.indexOf('}\n');
         while (boundary !== -1) {
+          if (!isUserScrolledUp) {
+            scrollToBottom();
+          }
           const jsonStr = buffer.slice(0, boundary + 1);
           buffer = buffer.slice(boundary + 1);
 
@@ -174,6 +252,7 @@ const UserChat: React.FC = () => {
 
             if (parsed?.session_id) {
               setSessionId(parsed?.session_id);
+              localStorage.setItem('history', parsed?.session_id);
             }
 
             if (parsed?.message_id) {
@@ -221,6 +300,9 @@ const UserChat: React.FC = () => {
 
           boundary = buffer.indexOf('}\n');
         }
+        if (!isUserScrolledUp) {
+          scrollToBottom();
+        }
       }
       setIsPending(false);
     } catch (error) {
@@ -229,11 +311,19 @@ const UserChat: React.FC = () => {
 
       // console.log('Error in New Chat:', error);
     }
+    setIsUserScrolledUp(false);
+    // if (saveHistory) {
+    //   console.log(chatList);
+    //   console.log(chatList.toString());
+
+    //   localStorage.setItem('history', chatList.toString());
+    //   localStorage.setItem('expire_date', Date().toString());
+    // }
   };
 
   const ContinueChat = async ({ newText, fileType = 'text' }: any) => {
     setIsPending(true);
-
+    setIsUserScrolledUp(false);
     let data = null;
     const form = new FormData();
 
@@ -308,6 +398,9 @@ const UserChat: React.FC = () => {
       let Id: null = null;
 
       while (true) {
+        if (!isUserScrolledUp) {
+          scrollToBottom();
+        }
         const { done, value } = await reader.read();
         if (done) break;
 
@@ -316,6 +409,9 @@ const UserChat: React.FC = () => {
 
         let boundary = buffer.indexOf('}\n');
         while (boundary !== -1) {
+          if (!isUserScrolledUp) {
+            scrollToBottom();
+          }
           const jsonStr = buffer.slice(0, boundary + 1);
           buffer = buffer.slice(boundary + 1);
 
@@ -366,6 +462,9 @@ const UserChat: React.FC = () => {
 
           boundary = buffer.indexOf('}\n');
         }
+        if (!isUserScrolledUp) {
+          scrollToBottom();
+        }
       }
       text = '';
       setIsPending(false);
@@ -375,6 +474,13 @@ const UserChat: React.FC = () => {
 
       // console.log('Error in fetchStreamedResponse:', error);
     }
+    setIsUserScrolledUp(false);
+    // if (saveHistory) {
+    //   console.log(chatList);
+    //   console.log(chatList.toString());
+    //   localStorage.setItem('history', chatList.toString());
+    //   localStorage.setItem('expire_date', Date().toString());
+    // }
   };
 
   const SendText = async (newText: string) => {
@@ -396,7 +502,9 @@ const UserChat: React.FC = () => {
         });
         return _newChat;
       });
-
+      setTimeout(() => {
+        scrollToBottom();
+      }, 100);
       if (chatList.length >= 2) {
         if (audioBlob) {
           await ContinueChat({
@@ -434,6 +542,9 @@ const UserChat: React.FC = () => {
       });
       return _newChat;
     });
+    setTimeout(() => {
+      scrollToBottom();
+    }, 100);
     if (chatList.length >= 2) {
       await ContinueChat({
         fileType: 'voice',
@@ -481,7 +592,7 @@ const UserChat: React.FC = () => {
           </>
         ) : (
           <>
-            <Message chat={chatList} sessionId={sessionId} />
+            <Message chat={chatList} sessionId={sessionId} divRef={divRef} />
             <InputChatBox
               className="lg:w-4/6 xl:!w-3/6 md:w-5/6 w-[95%] mb-2 !absolute !bottom-0 !h-auto"
               SendText={SendText}
