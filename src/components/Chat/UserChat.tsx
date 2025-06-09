@@ -57,10 +57,11 @@ const UserChat: React.FC = () => {
         localStorage.getItem('history') &&
         localStorage.getItem('expire_date')
       ) {
-        const savedTime = parseInt(localStorage?.getItem('expire_date') || '');
+        const expireDateStr = localStorage.getItem('expire_date');
+        const savedTime = expireDateStr ? new Date(expireDateStr).getTime() : 0;
         const currentTime = Date.now();
         const twentyFourHours = 24 * 60 * 60 * 1000;
-        if (currentTime - savedTime >= twentyFourHours) {
+        if (currentTime - savedTime <= twentyFourHours) {
           localStorage.removeItem('history');
           localStorage.removeItem('expire_date');
         } else {
@@ -252,6 +253,10 @@ const UserChat: React.FC = () => {
 
             if (parsed?.session_id) {
               setSessionId(parsed?.session_id);
+              localStorage.setItem(
+                'expire_date',
+                new Date(Date.now() - 25 * 60 * 60 * 1000).toString()
+              );
               localStorage.setItem('history', parsed?.session_id);
             }
 
