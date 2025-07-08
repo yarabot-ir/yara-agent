@@ -1,16 +1,14 @@
 import clsx from 'clsx';
-import {
-  SendIcon,
-  VoiceIcon,
-  TrashIcon,
-  PlayIcon,
-  PauseIcon,
-} from '../../../../public/icons';
+import { Dropdown } from 'primereact/dropdown';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { useRef, useState } from 'react';
 import { AudioVisualizer } from 'react-audio-visualize';
+import { TrashIcon } from '../../../../public/icons';
+import Pause from '../../../../public/icons/Pause';
+import Play from '../../../../public/icons/Play';
+import Send from '../../../../public/icons/Send';
+import Voice from '../../../../public/icons/Voice';
 import { useToast } from '../../../context/ToastProvider';
-import { Dropdown } from 'primereact/dropdown';
 
 function InputChatBox({
   className,
@@ -31,6 +29,11 @@ function InputChatBox({
   const [audio, setAudio] = useState<any>(null);
   const [play, setPlay] = useState<any>(false);
   const { showToast } = useToast();
+
+  const prefString = localStorage.getItem('preferences');
+  const preferences = prefString ? JSON.parse(prefString) : null;
+  const color = preferences?.header_color || '#3AC0A0';
+  const AgenttextColor = preferences?.agent_text_response_color;
 
   const handleMicClick = async () => {
     if (!isRecording) {
@@ -94,9 +97,12 @@ function InputChatBox({
   return (
     <div
       className={clsx(
-        'lg:relative z-20 relative  f-jb-ie w-[100%] !max-w-full h-full    px-2 rounded-md gap-x-1 border-2 !border-primary-150 dark:!border-primary-150/70 bg-white dark:!bg-secondary-150    ',
+        `lg:relative z-20 relative  f-jb-ie w-[100%] !max-w-full h-full    px-2 rounded-md gap-x-1 !border-2 dark:!border-primary-150/70 bg-white dark:!bg-secondary-150 `,
         className
       )}
+      style={{
+        borderColor: color,
+      }}
     >
       <Dropdown
         disabled={chatList?.length >= 1 && true}
@@ -108,24 +114,22 @@ function InputChatBox({
         optionLabel="name"
         pt={{
           input: {
-            className:
-              '!text-sm -mt-2.5 !text-[#257966] !font-medium !font-yekanBakh',
+            className: '!text-sm -mt-2.5 !font-medium !font-yekanBakh',
           },
           trigger: {
-            className: '!text-[#257966] !font-yekanBakh',
+            className: ' !font-yekanBakh',
           },
           item: {
-            className:
-              '!text-[#257966] !text-sm !font-medium !font-yekanBakh hover:!bg-[#EFFFF9] h-10',
+            className: `!text-sm !font-medium !font-yekanBakh  h-10`,
           },
           select: {
-            className: '!bg-[#EFFAF8] hover:!bg-[#EFFAF8] ',
+            className: `!bg-[${color}] hover:!bg-[${color}] `,
           },
           list: {
-            className: '!py-0 ',
+            className: '!py-0',
           },
         }}
-        className="!absolute !bg-[#EFFAF8] !outline-none !shadow-none !border-0 left-7 -top-[33px] !h-8 !w-60 rounded-b-none"
+        className={`!absolute text-[${AgenttextColor}] opacity-85 !outline-none !shadow-none !border-0 left-7 -top-[33px] !h-8 !w-60 rounded-b-none`}
       />
       {audioBlob ? (
         <div className="flex justify-between items-center gap-3 px-2">
@@ -141,29 +145,23 @@ function InputChatBox({
               className="rotate-90"
               onClick={SendVoice}
             >
-              <img src={SendIcon} className="!min-w-6 !max-w-6 " alt="" />
+              <Send color={color} />
             </button>
             {play ? (
               <button onClick={handleStop} className="flex">
-                <img
-                  src={PauseIcon}
-                  alt="PlayIcon"
-                  className="!min-w-5 !max-w-5 filter dark:invert dark:brightness-0"
-                  style={{
-                    color: '#717174',
-                  }}
-                />
+                <Pause color={color} />
               </button>
             ) : (
               <button onClick={handlePlay} className="flex">
-                <img
+                {/* <img
                   src={PlayIcon}
                   alt="PlayIcon"
-                  className="!min-w-5 !max-w-5 filter dark:invert dark:brightness-0"
+                  className="!min-w-5 !max-w-5"
                   style={{
-                    color: '#717174',
+                    color: color,
                   }}
-                />
+                /> */}
+                <Play color={color} />
               </button>
             )}
           </div>
@@ -178,7 +176,7 @@ function InputChatBox({
               width={500}
               height={30}
               gap={2}
-              barColor={'#2C9179'}
+              barColor={color}
             />
           </div>
           <button className="flex" onClick={() => setAudioBlob('')}>
@@ -240,17 +238,18 @@ function InputChatBox({
 
             <button
               disabled={isPending}
-              className={clsx(text.length !== 0 ? 'hidden' : 'rounded-full ')}
+              className={clsx(
+                text.length !== 0 ? 'hidden' : 'rounded-full ',
+                !isRecording && 'opacity-40'
+              )}
               onClick={handleMicClick}
               style={{
                 opacity: isPending ? '20%' : '100%',
                 display: text !== '' ? 'none' : '',
-                filter: !isRecording
-                  ? 'brightness(0) saturate(100%) invert(33%) sepia(15%) saturate(676%) hue-rotate(140deg) brightness(85%) contrast(90%)'
-                  : '',
+                filter: !isRecording ? '' : 'bg-red-00',
               }}
             >
-              <img src={VoiceIcon} className={`!min-w-6 !max-h-6 `} alt="" />
+              <Voice color={color} />
             </button>
             <button
               disabled={isPending}
@@ -262,7 +261,7 @@ function InputChatBox({
                 }
               }}
             >
-              <img src={SendIcon} className="!min-w-6 !max-w-6 " alt="" />
+              <Send color={color} />
             </button>
           </div>
         </>

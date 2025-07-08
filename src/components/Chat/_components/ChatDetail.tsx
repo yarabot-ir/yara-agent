@@ -1,6 +1,4 @@
-import { defaultQues } from '../../../../data/data';
 import { LogoChatIcon } from '../../../../public/icons';
-import ChatBubble from './ChatBubble';
 import InputChatBox from './InputChatBox';
 
 function ChatDetail({
@@ -37,22 +35,6 @@ function ChatDetail({
           models={models}
           chatList={chatList}
         />
-        <div className="w-full flex flex-col items-start  gap-y-5   ">
-          <div className="f-jc-ie   w-full  flex-col md:flex-row-reverse md:justify-between gap-x-4 gap-y-3">
-            <span className=" w-full text-secondary-600  font-semibold   ">
-              نمیدونی از کجا شروع کنی؟!
-            </span>
-          </div>
-          <div className=" w-full flex-col lg:flex-row gap-x-3  gap-y-3 f-jb-ic ">
-            {defaultQues.map((item, index) => (
-              <ChatBubble
-                key={index}
-                onClick={() => SendText(item)}
-                text={item}
-              />
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   );

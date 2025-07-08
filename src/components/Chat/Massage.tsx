@@ -2,7 +2,9 @@ import { Button } from 'primereact/button';
 import { useState } from 'react';
 import { AudioVisualizer } from 'react-audio-visualize';
 import ReactMarkdown from 'react-markdown';
-import { CopyIcon, PauseIcon, PlayIcon, TickIcon } from '../../../public/icons';
+import { PauseIcon, PlayIcon } from '../../../public/icons';
+import CopyIcon from '../../../public/icons/CopyIcon';
+import TickIcon from '../../../public/icons/TickIcon';
 import { ReactMessage } from '../../services/ChatApi';
 
 function Massage({ chat, sessionId, divRef }: any) {
@@ -10,6 +12,11 @@ function Massage({ chat, sessionId, divRef }: any) {
   const [audio, setAudio] = useState<any>();
   const [clickCopy, setClickCopy] = useState(new Map());
   const [like, setLike] = useState(new Map());
+
+  const prefString = localStorage.getItem('preferences');
+  const preferences = prefString ? JSON.parse(prefString) : null;
+  const color = preferences?.header_color || '#77777E';
+  const AgenttextColor = preferences?.agent_text_response_color;
 
   const lastYaraBotIndex = chat
     ?.map((e: any, idx: number) => (e.role !== 'user' ? idx : -1))
@@ -144,13 +151,23 @@ function Massage({ chat, sessionId, divRef }: any) {
                             }
                           );
                         }}
-                        className="bg-white hover:!bg-white hover:dark:!bg-white/25 rounded-lg dark:!bg-secondary-150 !p-0 !h-8 !w-8 flex justify-center shadow-none border-0"
+                        className={`bg-white hover:!bg-white hover:dark:!bg-white/25 rounded-lg dark:!bg-secondary-150 !p-0 !h-8 !w-8 flex justify-center shadow-none border-0`}
                       >
                         {(item && item?.like === false) ||
                         like.get(item?.id) === 'Dislike' ? (
-                          <i className="pi pi-thumbs-down-fill text-[#77777e]"></i>
+                          <i
+                            className="pi pi-thumbs-down-fill"
+                            style={{
+                              color: color,
+                            }}
+                          ></i>
                         ) : (
-                          <i className="pi pi-thumbs-down text-[#77777e]"></i>
+                          <i
+                            className="pi pi-thumbs-down"
+                            style={{
+                              color: color,
+                            }}
+                          ></i>
                         )}
                       </Button>
                       <Button
@@ -169,19 +186,39 @@ function Massage({ chat, sessionId, divRef }: any) {
                       >
                         {(item && item?.like === false) ||
                         like.get(item?.id) === 'like' ? (
-                          <i className="pi pi-thumbs-up-fill text-[#77777e]"></i>
+                          <i
+                            className="pi pi-thumbs-up-fill"
+                            style={{
+                              color: color,
+                            }}
+                          ></i>
                         ) : (
-                          <i className="pi pi-thumbs-up text-[#77777e]"></i>
+                          <i
+                            className="pi pi-thumbs-up"
+                            style={{
+                              color: color,
+                            }}
+                          ></i>
                         )}
                       </Button>
                     </>
                   ) : item?.like || like.get(item?.id) === 'like' ? (
                     <Button className="bg-white hover:!bg-white hover:dark:!bg-white/25 rounded-lg dark:!bg-secondary-150 !p-0 !h-8 !w-8 flex justify-center shadow-none border-0">
-                      <i className="pi pi-thumbs-up-fill text-[#77777e]"></i>
+                      <i
+                        className="pi pi-thumbs-up-fill"
+                        style={{
+                          color: color,
+                        }}
+                      ></i>
                     </Button>
                   ) : (
                     <Button className="bg-white hover:!bg-white hover:dark:!bg-white/25 rounded-lg dark:!bg-secondary-150 !p-0 !h-8 !w-8 flex justify-center shadow-none border-0">
-                      <i className="pi pi-thumbs-down-fill text-[#77777e]"></i>
+                      <i
+                        className="pi pi-thumbs-down-fill"
+                        style={{
+                          color: color,
+                        }}
+                      ></i>
                     </Button>
                   )}
                   <Button
@@ -199,17 +236,10 @@ function Massage({ chat, sessionId, divRef }: any) {
                     className="bg-white hover:!bg-white hover:dark:!bg-white/25 rounded-lg dark:!bg-secondary-150 !p-0 !h-8 !w-8 flex justify-center shadow-none border-0"
                   >
                     {clickCopy.get(item.content) ? (
-                      <img
-                        src={TickIcon}
-                        className="!min-w-5 !max-w-5 "
-                        alt=""
-                      />
+                      <TickIcon color={color} />
                     ) : (
-                      <img
-                        src={CopyIcon}
-                        className="!min-w-5 !max-w-5 "
-                        alt=""
-                      />
+                      <CopyIcon color={color} />
+                      // '#77777E'
                     )}
                   </Button>
                 </div>
@@ -231,7 +261,8 @@ function Massage({ chat, sessionId, divRef }: any) {
                   </span>
                 </div>
                 <div className="  py-4  absolute -bottom-16 flex gap-x-1">
-                  {item?.like === null && like.get(item?.id) === undefined ? (
+                  {(item?.like === undefined || item?.like === null) &&
+                  like.get(item?.id) == undefined ? (
                     <>
                       <Button
                         onClick={() => {
@@ -249,9 +280,19 @@ function Massage({ chat, sessionId, divRef }: any) {
                       >
                         {(item && item?.like === false) ||
                         like.get(item?.id) === 'Dislike' ? (
-                          <i className="pi pi-thumbs-down-fill text-[#77777e]"></i>
+                          <i
+                            className="pi pi-thumbs-down-fill"
+                            style={{
+                              color: color,
+                            }}
+                          ></i>
                         ) : (
-                          <i className="pi pi-thumbs-down text-[#77777e]"></i>
+                          <i
+                            className="pi pi-thumbs-down"
+                            style={{
+                              color: color,
+                            }}
+                          ></i>
                         )}
                       </Button>
                       <Button
@@ -270,19 +311,39 @@ function Massage({ chat, sessionId, divRef }: any) {
                       >
                         {(item && item?.like === false) ||
                         like.get(item?.id) === 'like' ? (
-                          <i className="pi pi-thumbs-up-fill text-[#77777e]"></i>
+                          <i
+                            className="pi pi-thumbs-up-fill"
+                            style={{
+                              color: color,
+                            }}
+                          ></i>
                         ) : (
-                          <i className="pi pi-thumbs-up text-[#77777e]"></i>
+                          <i
+                            className="pi pi-thumbs-up"
+                            style={{
+                              color: color,
+                            }}
+                          ></i>
                         )}
                       </Button>
                     </>
                   ) : item?.like || like.get(item?.id) === 'like' ? (
                     <Button className="bg-white hover:!bg-white hover:dark:!bg-white/25 rounded-lg dark:!bg-secondary-150 !p-0 !h-8 !w-8 flex justify-center shadow-none border-0">
-                      <i className="pi pi-thumbs-up-fill text-[#77777e]"></i>
+                      <i
+                        className="pi pi-thumbs-up-fill"
+                        style={{
+                          color: color,
+                        }}
+                      ></i>
                     </Button>
                   ) : (
                     <Button className="bg-white hover:!bg-white hover:dark:!bg-white/25 rounded-lg dark:!bg-secondary-150 !p-0 !h-8 !w-8 flex justify-center shadow-none border-0">
-                      <i className="pi pi-thumbs-down-fill text-[#77777e]"></i>
+                      <i
+                        className="pi pi-thumbs-down-fill"
+                        style={{
+                          color: color,
+                        }}
+                      ></i>
                     </Button>
                   )}
                   <Button
@@ -300,17 +361,9 @@ function Massage({ chat, sessionId, divRef }: any) {
                     className="bg-white hover:!bg-white hover:dark:!bg-white/25 rounded-lg dark:!bg-secondary-150 !p-0 !h-8 !w-8 flex justify-center shadow-none border-0"
                   >
                     {clickCopy.get(item.content) ? (
-                      <img
-                        src={TickIcon}
-                        className="!min-w-5 !max-w-5 "
-                        alt=""
-                      />
+                      <TickIcon color={color} />
                     ) : (
-                      <img
-                        src={CopyIcon}
-                        className="!min-w-5 !max-w-5 "
-                        alt=""
-                      />
+                      <CopyIcon color={color} />
                     )}
                   </Button>
                 </div>

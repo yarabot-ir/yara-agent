@@ -61,9 +61,11 @@ const UserChat: React.FC = () => {
         const savedTime = expireDateStr ? new Date(expireDateStr).getTime() : 0;
         const currentTime = Date.now();
         const twentyFourHours = 24 * 60 * 60 * 1000;
-        if (currentTime - savedTime <= twentyFourHours) {
+
+        if (currentTime - savedTime >= twentyFourHours) {
           localStorage.removeItem('history');
           localStorage.removeItem('expire_date');
+          localStorage.removeItem('preferences');
         } else {
           setSessionId(localStorage?.getItem('history'));
           GetHistory();
@@ -79,24 +81,75 @@ const UserChat: React.FC = () => {
   }, [history]);
 
   useEffect(() => {
-    AgentName()
-      .then((e) => {
-        if (e?.detail) {
-          showToast('error', 'خطا', 'همیار مورد نظر یافت نشد');
-          setModels([{ agent_id: null, name: 'یارابات' }]);
-        } else {
-          setModels([
-            { agent_id: AgentId, name: e?.name },
-            { agent_id: null, name: 'یارابات' },
-          ]);
-          setSelectedModel({ agent_id: AgentId, name: e?.name });
-        }
-      })
-      .catch(() => {
-        showToast('error', 'خطا', 'همیار مورد نظر یافت نشد');
-        setModels([{ agent_id: null, name: 'یارابات' }]);
-      });
-  }, [AgentId, AgentToken]);
+    if (
+      (localStorage.getItem('history') ||
+        localStorage.getItem('preferences')) &&
+      localStorage.getItem('expire_date')
+    ) {
+      const expireDateStr = localStorage.getItem('expire_date');
+      const savedTime = expireDateStr ? new Date(expireDateStr).getTime() : 0;
+      const currentTime = Date.now();
+      const twentyFourHours = 24 * 60 * 60 * 1000;
+      if (currentTime - savedTime >= twentyFourHours) {
+        localStorage.removeItem('history');
+        localStorage.removeItem('expire_date');
+        localStorage.removeItem('preferences');
+        AgentName()
+          .then((e) => {
+            if (e?.detail) {
+              showToast('error', 'خطا', 'همیار مورد نظر یافت نشد');
+              setModels([{ agent_id: null, name: 'یارابات' }]);
+            } else {
+              setModels([
+                { agent_id: AgentId, name: e?.name },
+                { agent_id: null, name: 'یارابات' },
+              ]);
+              setSelectedModel({ agent_id: AgentId, name: e?.name });
+            }
+          })
+          .catch(() => {
+            showToast('error', 'خطا', 'همیار مورد نظر یافت نشد');
+            setModels([{ agent_id: null, name: 'یارابات' }]);
+          });
+      } else {
+        const prefString = localStorage.getItem('preferences');
+        const data = prefString ? JSON.parse(prefString) : null;
+        setModels([
+          {
+            agent_id: AgentId,
+            name: data?.name,
+          },
+          { agent_id: null, name: 'یارابات' },
+        ]);
+        setSelectedModel({
+          agent_id: AgentId,
+          name: data?.name,
+        });
+      }
+    } else {
+      if (!localStorage.getItem('preferences')) {
+        AgentName()
+          .then((e) => {
+            if (e?.detail) {
+              showToast('error', 'خطا', 'همیار مورد نظر یافت نشد');
+              setModels([{ agent_id: null, name: 'یارابات' }]);
+            } else {
+              setModels([
+                { agent_id: AgentId, name: e?.name },
+                { agent_id: null, name: 'یارابات' },
+              ]);
+              setSelectedModel({ agent_id: AgentId, name: e?.name });
+            }
+          })
+          .catch(() => {
+            showToast('error', 'خطا', 'همیار مورد نظر یافت نشد');
+            setModels([{ agent_id: null, name: 'یارابات' }]);
+          });
+      }
+    }
+  }, [localStorage]);
+
+  // useEffect(() => {}, [AgentId, AgentToken]);
 
   // useEffect(() => {
   //   if (saveHistory) {

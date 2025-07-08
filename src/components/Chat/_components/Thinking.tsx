@@ -3,6 +3,9 @@ import React, { useEffect, useRef } from 'react';
 const Thinking: React.FC = () => {
   const elements = ['line1', 'line2', 'path1', 'path2'];
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const prefString = localStorage.getItem('preferences');
+  const preferences = prefString ? JSON.parse(prefString) : null;
+  const color = preferences?.header_color || '#3AC0A0';
 
   const resetOpacity = () => {
     elements.forEach((id) => {
@@ -46,7 +49,7 @@ const Thinking: React.FC = () => {
         //   height="30"
       >
         <style>
-          {`.st0 { fill: none; stroke: #257A66; stroke-width: 4; stroke-linecap: round; stroke-miterlimit: 10; }`}
+          {`.st0 { fill: none; stroke: ${color}; stroke-width: 4; stroke-linecap: round; stroke-miterlimit: 10; }`}
         </style>
         <line
           id="line1"
