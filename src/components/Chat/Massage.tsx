@@ -16,7 +16,7 @@ function Massage({ chat, sessionId, divRef }: any) {
   const prefString = localStorage.getItem('preferences');
   const preferences = prefString ? JSON.parse(prefString) : null;
   const color = preferences?.header_color || '#77777E';
-  const AgenttextColor = preferences?.agent_text_response_color;
+  // const AgenttextColor = preferences?.agent_text_response_color;
 
   const lastYaraBotIndex = chat
     ?.map((e: any, idx: number) => (e.role !== 'user' ? idx : -1))
