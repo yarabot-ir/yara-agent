@@ -274,7 +274,6 @@ const UserChat: React.FC = () => {
       const decoder = new TextDecoder('utf-8');
       let buffer = '';
       let isFirstChunk = true;
-      let text = '';
       let Id: null = null;
 
       while (true) {
@@ -287,13 +286,13 @@ const UserChat: React.FC = () => {
         const chunk = decoder.decode(value, { stream: true });
         buffer += chunk;
 
-        let boundary = buffer.indexOf('}\n');
-        while (boundary !== -1) {
+        let boundary;
+        while ((boundary = buffer.indexOf('}\n')) !== -1) {
           if (!isUserScrolledUp) {
             scrollToBottom();
           }
           const jsonStr = buffer.slice(0, boundary + 1);
-          buffer = buffer.slice(boundary + 1);
+          buffer = buffer.slice(boundary + 2);
 
           try {
             const parsed = JSON.parse(jsonStr);
@@ -330,15 +329,33 @@ const UserChat: React.FC = () => {
             }
 
             if (parsed.data) {
+              let textPart = '';
+              if (typeof parsed.data === 'string') {
+                textPart = parsed.data;
+              } else if (
+                typeof parsed.data === 'object' &&
+                parsed.data !== null
+              ) {
+                textPart = parsed.data ?? JSON.stringify(parsed.data);
+              } else {
+                textPart = String(parsed.data);
+              }
+
               setChatList((prevChatList) => {
                 const updatedChat = [...prevChatList];
                 const lastIndex = updatedChat.length - 1;
-                text += parsed.data;
+                let oldText = '';
+
+                if (typeof updatedChat[lastIndex].content === 'string') {
+                  oldText = updatedChat[lastIndex].content;
+                } else if (typeof updatedChat[lastIndex].content === 'object') {
+                  oldText = '';
+                }
 
                 updatedChat[lastIndex] = {
                   ...updatedChat[lastIndex],
                   role: 'assistant',
-                  content: text,
+                  content: oldText + textPart,
                 };
 
                 return updatedChat;
@@ -447,7 +464,6 @@ const UserChat: React.FC = () => {
       const reader = response.body.getReader();
       const decoder = new TextDecoder('utf-8');
       let buffer = '';
-      let text = '';
       let Id: null = null;
 
       while (true) {
@@ -460,47 +476,64 @@ const UserChat: React.FC = () => {
         const chunk = decoder.decode(value, { stream: true });
         buffer += chunk;
 
-        let boundary = buffer.indexOf('}\n');
-        while (boundary !== -1) {
+        let boundary;
+        while ((boundary = buffer.indexOf('}\n')) !== -1) {
           if (!isUserScrolledUp) {
             scrollToBottom();
           }
           const jsonStr = buffer.slice(0, boundary + 1);
-          buffer = buffer.slice(boundary + 1);
+          buffer = buffer.slice(boundary + 2);
 
           try {
             const parsed = JSON.parse(jsonStr);
-            if (parsed?.message_id) {
-              Id = parsed?.message_id;
-              setChatList((prevChatList) => {
-                const updatedChat = [...prevChatList];
-                const lastIndex = updatedChat.length - 1;
-
-                const newText = updatedChat[lastIndex].content;
-
-                updatedChat[lastIndex] = {
-                  ...updatedChat[lastIndex],
-                  role: 'assistant',
-                  content: newText,
-                  id: Id,
-                  like: null,
-                };
-
-                return updatedChat;
+            if (parsed.message_id) {
+              Id = parsed.message_id;
+              setChatList((prev) => {
+                const updated = [...prev];
+                const lastIndex = updated.length - 1;
+                if (lastIndex >= 0) {
+                  const oldContent = updated[lastIndex].content || '';
+                  updated[lastIndex] = {
+                    ...updated[lastIndex],
+                    role: 'assistant',
+                    content: oldContent,
+                    id: Id,
+                    like: null,
+                  };
+                }
+                return updated;
               });
               setIsPending(false);
             }
 
             if (parsed.data) {
+              let textPart = '';
+              if (typeof parsed.data === 'string') {
+                textPart = parsed.data;
+              } else if (
+                typeof parsed.data === 'object' &&
+                parsed.data !== null
+              ) {
+                textPart = parsed.data ?? JSON.stringify(parsed.data);
+              } else {
+                textPart = String(parsed.data);
+              }
+
               setChatList((prevChatList) => {
                 const updatedChat = [...prevChatList];
                 const lastIndex = updatedChat.length - 1;
-                text += parsed.data;
+                let oldText = '';
+
+                if (typeof updatedChat[lastIndex].content === 'string') {
+                  oldText = updatedChat[lastIndex].content;
+                } else if (typeof updatedChat[lastIndex].content === 'object') {
+                  oldText = '';
+                }
 
                 updatedChat[lastIndex] = {
                   ...updatedChat[lastIndex],
                   role: 'assistant',
-                  content: text,
+                  content: oldText + textPart,
                 };
 
                 return updatedChat;
@@ -519,7 +552,6 @@ const UserChat: React.FC = () => {
           scrollToBottom();
         }
       }
-      text = '';
       setIsPending(false);
     } catch (error) {
       const err = error as Error; // Type assertion
