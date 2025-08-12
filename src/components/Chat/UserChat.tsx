@@ -412,13 +412,13 @@ const UserChat: React.FC = () => {
         setChatList((prevChatList: any) => {
           const updatedChat = [...prevChatList];
           const lastIndex = updatedChat.length - 1;
-
           if (lastIndex >= 0) {
             updatedChat.splice(lastIndex, 1);
           }
-
           return updatedChat;
         });
+        setIsPending(false);
+        return;
       }
 
       if (response?.status === 400) {
@@ -430,30 +430,39 @@ const UserChat: React.FC = () => {
         setChatList((prevChatList: any) => {
           const updatedChat = [...prevChatList];
           const lastIndex = updatedChat.length - 1;
-
           if (lastIndex >= 0) {
             updatedChat.splice(lastIndex, 1);
           }
-
           return updatedChat;
         });
+        setIsPending(false);
+        return;
       }
 
       if (!response.body) {
         console.error('No response body!');
+        setIsPending(false);
         return;
       }
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder('utf-8');
       let buffer = '';
-      let text = '';
-      let Id: null = null;
+      let currentMessage = '';
+      let messageId: string | null = null;
+
+      // اضافه کردن پیام اولیه کاربر به chatList
+      setChatList((prevChatList: any) => [
+        ...prevChatList,
+        {
+          role: 'user',
+          content: newText,
+          id: null,
+          like: null,
+        },
+      ]);
 
       while (true) {
-        if (!isUserScrolledUp) {
-          scrollToBottom();
-        }
         const { done, value } = await reader.read();
         if (done) break;
 
@@ -462,78 +471,65 @@ const UserChat: React.FC = () => {
 
         let boundary = buffer.indexOf('}\n');
         while (boundary !== -1) {
-          if (!isUserScrolledUp) {
-            scrollToBottom();
-          }
           const jsonStr = buffer.slice(0, boundary + 1);
           buffer = buffer.slice(boundary + 1);
 
           try {
             const parsed = JSON.parse(jsonStr);
+
             if (parsed?.message_id) {
-              Id = parsed?.message_id;
-              setChatList((prevChatList) => {
-                const updatedChat = [...prevChatList];
-                const lastIndex = updatedChat.length - 1;
-
-                const newText = updatedChat[lastIndex].content;
-
-                updatedChat[lastIndex] = {
-                  ...updatedChat[lastIndex],
-                  role: 'assistant',
-                  content: newText,
-                  id: Id,
-                  like: null,
-                };
-
-                return updatedChat;
-              });
-              setIsPending(false);
+              messageId = parsed.message_id;
             }
 
             if (parsed.data) {
-              setChatList((prevChatList) => {
+              currentMessage += parsed.data;
+              setChatList((prevChatList: any) => {
                 const updatedChat = [...prevChatList];
                 const lastIndex = updatedChat.length - 1;
-                text += parsed.data;
 
-                updatedChat[lastIndex] = {
-                  ...updatedChat[lastIndex],
-                  role: 'assistant',
-                  content: text,
-                };
+                if (
+                  lastIndex >= 0 &&
+                  updatedChat[lastIndex].role === 'assistant'
+                ) {
+                  updatedChat[lastIndex] = {
+                    ...updatedChat[lastIndex],
+                    content: currentMessage,
+                    id: messageId,
+                  };
+                } else {
+                  updatedChat.push({
+                    role: 'assistant',
+                    content: currentMessage,
+                    id: messageId,
+                    like: null,
+                  });
+                }
 
                 return updatedChat;
               });
             }
           } catch (error) {
-            const err = error as Error; // Type assertion
+            const err = error as Error;
             showToast('error', 'خطا', err.message);
-
             console.error('Error parsing JSON:', jsonStr, error);
           }
 
           boundary = buffer.indexOf('}\n');
         }
+
         if (!isUserScrolledUp) {
           scrollToBottom();
         }
       }
-      text = '';
+
       setIsPending(false);
     } catch (error) {
-      const err = error as Error; // Type assertion
+      const err = error as Error;
       showToast('error', 'خطا', err.message);
-
-      // console.log('Error in fetchStreamedResponse:', error);
+      setIsPending(false);
     }
+
     setIsUserScrolledUp(false);
-    // if (saveHistory) {
-    //   console.log(chatList);
-    //   console.log(chatList.toString());
-    //   localStorage.setItem('history', chatList.toString());
-    //   localStorage.setItem('expire_date', Date().toString());
-    // }
   };
 
   const SendText = async (newText: string) => {
