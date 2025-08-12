@@ -1,5 +1,5 @@
-import Header from '../components/Header';
 import UserChat from '../components/Chat/UserChat';
+import Header from '../components/Header';
 
 function Chat() {
   return (
@@ -9,7 +9,7 @@ function Chat() {
     >
       <div>
         <Header />
-        <div className="w-full f-jc-is">
+        <div className="w-full f-jc-is m-[-15px]">
           <UserChat />
         </div>
       </div>
