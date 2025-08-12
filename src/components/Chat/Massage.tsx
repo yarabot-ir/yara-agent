@@ -1,5 +1,5 @@
 import { Button } from 'primereact/button';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AudioVisualizer } from 'react-audio-visualize';
 import ReactMarkdown from 'react-markdown';
 import { PauseIcon, PlayIcon } from '../../../public/icons';
@@ -17,6 +17,10 @@ function Massage({ chat, sessionId, divRef }: any) {
   const preferences = prefString ? JSON.parse(prefString) : null;
   const color = preferences?.header_color || '#77777E';
   // const AgenttextColor = preferences?.agent_text_response_color;
+
+  useEffect(() => {
+    console.log(chat);
+  }, [chat]);
 
   const lastYaraBotIndex = chat
     ?.map((e: any, idx: number) => (e.role !== 'user' ? idx : -1))
