@@ -441,6 +441,14 @@ const UserChat: React.FC = () => {
 
       if (!response.body) {
         console.error('No response body!');
+        setChatList((prevChatList: any) => {
+          const updatedChat = [...prevChatList];
+          const lastIndex = updatedChat.length - 1;
+          if (lastIndex >= 0 && updatedChat[lastIndex].isTemporary) {
+            updatedChat.splice(lastIndex, 1);
+          }
+          return updatedChat;
+        });
         setIsPending(false);
         return;
       }
@@ -451,7 +459,6 @@ const UserChat: React.FC = () => {
       let currentMessage = '';
       let messageId: string | null = null;
 
-      // اضافه کردن پیام اولیه کاربر به chatList
       setChatList((prevChatList: any) => [
         ...prevChatList,
         {
@@ -459,8 +466,19 @@ const UserChat: React.FC = () => {
           content: newText,
           id: null,
           like: null,
+          timestamp_ms: Date.now(),
+        },
+        {
+          role: 'assistant',
+          content: <Thinking />,
+          id: null,
+          like: null,
+          timestamp_ms: Date.now(),
+          isTemporary: true,
         },
       ]);
+
+      scrollToBottom();
 
       while (true) {
         const { done, value } = await reader.read();
@@ -489,12 +507,26 @@ const UserChat: React.FC = () => {
 
                 if (
                   lastIndex >= 0 &&
+                  updatedChat[lastIndex].role === 'assistant' &&
+                  updatedChat[lastIndex].isTemporary
+                ) {
+                  updatedChat[lastIndex] = {
+                    role: 'assistant',
+                    content: currentMessage,
+                    id: messageId,
+                    like: null,
+                    timestamp_ms: Date.now(),
+                    isTemporary: false,
+                  };
+                } else if (
+                  lastIndex >= 0 &&
                   updatedChat[lastIndex].role === 'assistant'
                 ) {
                   updatedChat[lastIndex] = {
                     ...updatedChat[lastIndex],
                     content: currentMessage,
                     id: messageId,
+                    timestamp_ms: Date.now(),
                   };
                 } else {
                   updatedChat.push({
@@ -502,6 +534,8 @@ const UserChat: React.FC = () => {
                     content: currentMessage,
                     id: messageId,
                     like: null,
+                    timestamp_ms: Date.now(),
+                    isTemporary: false,
                   });
                 }
 
@@ -522,10 +556,27 @@ const UserChat: React.FC = () => {
         }
       }
 
+      setChatList((prevChatList: any) => {
+        const updatedChat = [...prevChatList];
+        const lastIndex = updatedChat.length - 1;
+        if (lastIndex >= 0 && updatedChat[lastIndex].isTemporary) {
+          updatedChat.splice(lastIndex, 1);
+        }
+        return updatedChat;
+      });
+
       setIsPending(false);
     } catch (error) {
       const err = error as Error;
       showToast('error', 'خطا', err.message);
+      setChatList((prevChatList: any) => {
+        const updatedChat = [...prevChatList];
+        const lastIndex = updatedChat.length - 1;
+        if (lastIndex >= 0 && updatedChat[lastIndex].isTemporary) {
+          updatedChat.splice(lastIndex, 1);
+        }
+        return updatedChat;
+      });
       setIsPending(false);
     }
 
@@ -534,23 +585,6 @@ const UserChat: React.FC = () => {
 
   const SendText = async (newText: string) => {
     if (newText.trim() !== '') {
-      setChatList((prevChatList) => {
-        const _newChat = [...prevChatList];
-        _newChat.push({
-          content: newText,
-          file: [],
-          role: 'user',
-          timestamp_ms: Date.now(),
-        });
-        _newChat.push({
-          content: <Thinking />,
-          file: [],
-          role: 'assistant',
-          timestamp_ms: Date.now(),
-          like: null,
-        });
-        return _newChat;
-      });
       setTimeout(() => {
         scrollToBottom();
       }, 100);
