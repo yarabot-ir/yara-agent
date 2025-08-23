@@ -55,7 +55,7 @@ function Massage({ chat, sessionId, divRef }: any) {
   return (
     <div
       ref={divRef}
-      className="overflow-y-auto  !pb-36 md:pb-0 lg:mt-6 xl:!mt-[-100px] !min-h-[85vh] flex w-full md:!w-5/6 lg:!w-4/6 xl:!w-3/6 flex-col gap-6 py-4 px-2 font-normal leading-8 [&::-webkit-scrollbar]:w-0"
+      className="overflow-y-auto  !pb-44 md:!pb-28 lg:mt-6 xl:!mt-[-100px] !min-h-[85vh] flex w-full md:!w-5/6 lg:!w-4/6 xl:!w-3/6 flex-col gap-6 py-4  px-2 font-normal leading-8 [&::-webkit-scrollbar]:w-0  "
     >
       {chat?.map((item: any, idx: any) => {
         const isLastItem = idx === lastYaraBotIndex;

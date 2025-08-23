@@ -113,8 +113,10 @@ function InputChatBox({
           }
         }}
         disabled={chatList?.length === 0}
+        style={{ backgroundColor: color }}
         className={clsx(
-          ' text-sm !border-none absolute -bottom-10 !w-fit p-2 rounded-tl-none rounded-tr-none rounded-lg !bg-primary-400 h-10 text-white  transition-duration-200 ease-in-out   hover:brightness-110  active:scale-95 active:opacity-80',
+          ` text-sm !border-none absolute -bottom-10 !w-fit p-2 rounded-tl-none rounded-tr-none rounded-lg  h-10 text-white  transition-duration-200 ease-in-out   hover:brightness-110  active:scale-95 active:opacity-80 bg-[${color}] `,
+
           chatList?.length === 0 && 'opacity-70'
         )}
       >

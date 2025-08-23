@@ -702,7 +702,7 @@ const UserChat: React.FC = () => {
               chatList={chatList}
             />
             <InputChatBox
-              className="lg:hidden !h-auto w-[95%] mb-2 !absolute !bottom-0"
+              className="lg:hidden !h-auto w-[95%] mb-6 mr-4 sm:mr-5 !absolute !bottom-0"
               SendText={SendText}
               setAudioBlob={setAudioBlob}
               audioBlob={audioBlob}
@@ -719,7 +719,7 @@ const UserChat: React.FC = () => {
           <>
             <Message chat={chatList} sessionId={sessionId} divRef={divRef} />
             <InputChatBox
-              className="lg:w-4/6 xl:!w-3/6 md:w-5/6 w-[95%] mb-2 !absolute !bottom-0 !h-auto"
+              className="lg:w-4/6 xl:!w-3/6 md:w-5/6 w-[95%] mb-6 mr-5 !absolute !bottom-0 !h-auto"
               SendText={SendText}
               setAudioBlob={setAudioBlob}
               audioBlob={audioBlob}
