@@ -27,7 +27,6 @@ const UserChat: React.FC = () => {
     agent_id: null,
     name: 'یارابات',
   });
-  let userScrolledUp = false;
 
   const { showToast } = useToast();
   const API = import.meta.env.VITE_BASE_URL;
@@ -50,6 +49,24 @@ const UserChat: React.FC = () => {
     const data = await AgentHistory(localStorage?.getItem('history') || '');
     setChatList(data);
   };
+
+  // Auto-scroll to bottom when chat history is loaded
+  useEffect(() => {
+    if (chatList.length > 0 && !isPending) {
+      setTimeout(() => {
+        autoScrollToBottom();
+      }, 100);
+    }
+  }, [chatList.length, isPending]);
+
+  // Auto-scroll to bottom when new messages are added during streaming
+  useEffect(() => {
+    if (chatList.length > 0 && isPending) {
+      setTimeout(() => {
+        autoScrollToBottom();
+      }, 50);
+    }
+  }, [chatList]);
 
   useEffect(() => {
     if (history == 'true') {
@@ -179,21 +196,14 @@ const UserChat: React.FC = () => {
     }
   }, [renderedItems, defaultQues]);
 
-  const scrollToBottom = () => {
+  const autoScrollToBottom = () => {
     const { current } = divRef;
     if (!current) return;
 
-    const checkScrollDirection = (event: any) => {
-      if (event.deltaY < 0) {
-        userScrolledUp = true;
-        setIsUserScrolledUp(true);
-        current.removeEventListener('wheel', checkScrollDirection);
-      }
-    };
+    // Reset user scroll state when auto-scrolling
+    setIsUserScrolledUp(false);
 
-    current.addEventListener('wheel', checkScrollDirection);
-
-    if (!userScrolledUp && current.lastElementChild) {
+    if (current.lastElementChild) {
       const offset = 500;
       current.scrollTo({
         top: current.lastElementChild.offsetTop + offset,
@@ -305,7 +315,7 @@ const UserChat: React.FC = () => {
         },
       ]);
 
-      scrollToBottom();
+      autoScrollToBottom();
 
       while (true) {
         const { done, value } = await reader.read();
@@ -385,7 +395,7 @@ const UserChat: React.FC = () => {
         }
 
         if (!isUserScrolledUp) {
-          scrollToBottom();
+          autoScrollToBottom();
         }
       }
 
@@ -520,7 +530,7 @@ const UserChat: React.FC = () => {
         },
       ]);
 
-      scrollToBottom();
+      autoScrollToBottom();
 
       while (true) {
         const { done, value } = await reader.read();
@@ -594,7 +604,7 @@ const UserChat: React.FC = () => {
         }
 
         if (!isUserScrolledUp) {
-          scrollToBottom();
+          autoScrollToBottom();
         }
       }
 
@@ -628,7 +638,7 @@ const UserChat: React.FC = () => {
   const SendText = async (newText: string) => {
     if (newText.trim() !== '') {
       setTimeout(() => {
-        scrollToBottom();
+        autoScrollToBottom();
       }, 100);
       if (chatList.length >= 2) {
         if (audioBlob) {
@@ -668,7 +678,7 @@ const UserChat: React.FC = () => {
       return _newChat;
     });
     setTimeout(() => {
-      scrollToBottom();
+      autoScrollToBottom();
     }, 100);
     if (chatList.length >= 2) {
       await ContinueChat({
