@@ -104,6 +104,23 @@ function InputChatBox({
         borderColor: color,
       }}
     >
+      <button
+        key="btn-12"
+        onClick={() => {
+          if (localStorage.getItem('history')) {
+            localStorage.removeItem('history');
+            window.location.reload();
+          }
+        }}
+        disabled={chatList?.length === 0}
+        className={clsx(
+          '!border-none absolute -bottom-10 !w-fit p-2 rounded-tl-none rounded-tr-none rounded-lg !bg-primary-400 h-10 text-white  transition-duration-200 ease-in-out   hover:brightness-110  active:scale-95 active:opacity-80',
+          chatList?.length === 0 && 'opacity-70'
+        )}
+      >
+        پاکسازی تاریخچه
+      </button>
+
       <Dropdown
         disabled={chatList?.length >= 1 && true}
         options={models}
@@ -189,7 +206,7 @@ function InputChatBox({
         </div>
       ) : (
         <>
-          <div className="f-js-ic gap-x-3 w-full h-full ml-2">
+          <div className=" relative f-js-ic gap-x-3 w-full h-full ml-2">
             {/* <button className="flex sm:hidden" onClick={handleButtonClick}>
               <img src={AttachIcon} className="!w-7" alt="" />
             </button> */}

@@ -49,7 +49,7 @@ const Thinking: React.FC = () => {
         //   height="30"
       >
         <style>
-          {`.st0 { fill: none; stroke: ${color}; stroke-width: 4; stroke-linecap: round; stroke-miterlimit: 10; }`}
+          {`.st0 { fill: none; stroke: ${color}; stroke-width: 4; strokeLinecap: round; stroke-miterlimit: 10; }`}
         </style>
         <line
           id="line1"

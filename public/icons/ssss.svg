@@ -4,7 +4,7 @@
       .cls-1 {
         fill: none;
         stroke: #32a48a;
-        stroke-width: 10.14px;
+        strokeWidth: 10.14px;
       }
     </style>
   </defs>
