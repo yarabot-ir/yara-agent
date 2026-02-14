@@ -218,7 +218,7 @@ function Massage({ chat, sessionId, divRef }: any) {
                               return (
                                 <code
                                   {...props}
-                                  className="   flex break-words whitespace-pre-wrap max-w-full"
+                                  className={`flex break-words whitespace-pre-wrap max-w-full ${inline ? '' : 'block'} `}
                                   dir="auto"
                                 >
                                   {children}
@@ -228,7 +228,7 @@ function Massage({ chat, sessionId, divRef }: any) {
 
                             return (
                               <div
-                                className="  text-white relative  p-3 rounded-md overflow-x-auto max-w-full"
+                                className="  text-secondary-400 relative  p-3 rounded-md overflow-x-auto max-w-full"
                                 dir="auto"
                               >
                                 <button
@@ -269,7 +269,7 @@ function Massage({ chat, sessionId, divRef }: any) {
                                       setClickCopy(resetClickCopy);
                                     }, 700);
                                   }}
-                                  className="bg-white hover:!bg-white hover:dark:!bg-white/25 rounded-lg dark:!bg-secondary-150 !p-0 !h-7 min-w-7  min-h-7 !w-7 flex justify-center shadow-none border-0"
+                                  className="bg-gray-100 hover:!bg-white hover:dark:!bg-white/25 rounded-lg dark:!bg-secondary-150 !p-0 !h-7 min-w-7  min-h-7 !w-7 flex justify-center shadow-none border-0"
                                 >
                                   {clickCopy.get(
                                     `code-${idx}-${String(children).slice(
@@ -465,7 +465,7 @@ function Massage({ chat, sessionId, divRef }: any) {
 
                             return (
                               <div
-                                className="  text-white relative  p-3 rounded-md overflow-x-auto max-w-full"
+                                className="  text-secondary-400 relative  p-3 rounded-md overflow-x-auto max-w-full"
                                 dir="auto"
                               >
                                 <button
@@ -554,8 +554,8 @@ function Massage({ chat, sessionId, divRef }: any) {
                           },
                         }}
                       >
-                        
-                        {item?.content}</ReactMarkdown>
+                        {item?.content}
+                      </ReactMarkdown>
                     )}
                   </span>
                 </div>
